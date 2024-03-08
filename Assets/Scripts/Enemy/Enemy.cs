@@ -33,6 +33,7 @@ public class Enemy : MonoBehaviour
         {
             PlayerBullet bullet = collision.gameObject.GetComponent<PlayerBullet>();
             OnTakeHit(bullet.damage);
+            Destroy(gameObject);
         }
     }
 }
