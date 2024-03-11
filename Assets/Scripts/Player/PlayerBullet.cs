@@ -4,23 +4,25 @@ using UnityEngine;
 
 public class PlayerBullet : MonoBehaviour
 {
-    public float Speed = 5f; // 총알 설정
-    public int damage;
+    public float Speed = 5f; // 총알의 속도
+    public int damage; // 총알의 데미지 값
+    public float lifetime = 2f; // 총알이 파괴되기 전까지 존재하는 시간 (초 단위)
+
     private void Start()
     {
-        Destroy(gameObject, 2f); // 총알 2초 후 사라짐
+        Destroy(gameObject, lifetime); // 총알 생성 후 지정된 시간(lifetime)이 지나면 자동으로 파괴
     }
 
-    public void Update()
+    void Update()
     {
-        transform.Translate(Vector2.up * (Speed * Time.deltaTime), Space.Self); // 총알 위로 발사
+        transform.Translate(Vector2.up * (Speed * Time.deltaTime), Space.Self); // 총알을 매 프레임마다 위로 이동시킴
     }
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Enemy") // 적이랑 충돌 시 사라짐
+        if (collision.gameObject.tag == "Enemy") // 총알이 적과 충돌한 경우
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // 총알 파괴
         }
     }
 }

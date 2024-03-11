@@ -1,57 +1,89 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    //적이 출현할 위치를 담을 배열
-    public Transform[] points;
-    //적 프리팹을 할당할 변수
-    public GameObject EnemyPrefab;
+    /*
+    public Transform[] points; // 적이 출현할 위치를 저장할 배열
+    public GameObject EnemyPrefab; // 적 프리팹
+    public float createTime; // 적 생성 주기
+    public int maxEnemy = 10; // 최대 적 수
+    public bool isGameOver = false; // 게임 오버 여부
 
-    //적을 발생시킬 주기
-    public float createTime;
-    //적의 최대 발생 개수
-    public int maxEnemy = 10;
-    //게임 종료 여부 변수
-    public bool isGameOver = false;
-
-    // Use this for initialization
-    void Start()
+    public void Start()
     {
-        //Hierarchy View의 Spawn Point를 찾아 하위에 있는 모든 Transform 컴포넌트를 찾아옴
+        // "SpawnPoint"를 찾아 모든 Transform 컴포넌트를 points 배열에 저장
         points = GameObject.Find("SpawnPoint").GetComponentsInChildren<Transform>();
 
         if (points.Length > 0)
         {
-            //적 생성 코루틴 함수 호출
-            StartCoroutine(this.CreateEnemy());
+            StartCoroutine(this.CreateEnemy()); // 적 생성 코루틴 시작
         }
     }
 
+    // 적을 생성하는 코루틴
     IEnumerator CreateEnemy()
     {
-        //게임 종료 시까지 무한 루프
-        while (!isGameOver)
+        while (!isGameOver) // 게임 오버가 아닐 때까지 반복
         {
-            // 현재 생성된 적 개수 산출
-            int enemyCount = (int)GameObject.FindGameObjectsWithTag("Enemy").Length;
+            int enemyCount = (int)GameObject.FindGameObjectsWithTag("Enemy").Length; // 현재 적의 수 계산
 
-            if (enemyCount < maxEnemy)
+            if (enemyCount < maxEnemy) // 최대 적 수보다 적을 경우
             {
-                // 적의 생성 주기 시간만큼 대기
-                yield return new WaitForSeconds(createTime);
+                int idx = Random.Range(1, points.Length); // 생성 위치 랜덤 선택
+                Instantiate(EnemyPrefab, points[idx].position, points[idx].rotation); // 적 생성
+            }
 
-                //불규칙적인 위치 산출
-                int idx = Random.Range(1, points.Length);
-                // 적의 동적 생성
-                Instantiate(EnemyPrefab, points[idx].position, points[idx].rotation);
-            }
-            else
-            {
-                yield return null;
-            }
+            yield return new WaitForSeconds(createTime); // createTime 만큼 대기 후 다시 반복
+        }
+    }
+    */
+    public GameObject[] enemyObjects;
+    public Transform[] spawnPoints;
+    public GameObject player;
+
+    public float maxSpawnDelay;
+    public float curSpawnDelay;
+
+    private void Update()
+    {
+        curSpawnDelay += Time.deltaTime;
+
+        if(curSpawnDelay > maxSpawnDelay)
+        {
+            SpawnEnemy();
+            maxSpawnDelay = Random.Range(0.5f, 3f);
+            curSpawnDelay = 0;
+        }
+    }
+
+    private void SpawnEnemy()
+    {
+        // enemyObjects와 spawnPoints의 길이에 따라 랜덤 인덱스 생성
+        int ranEnemy = Random.Range(0, enemyObjects.Length);
+        int ranPoint = Random.Range(0, spawnPoints.Length);
+        GameObject enemy = Instantiate(enemyObjects[ranEnemy], spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
+
+        Rigidbody2D rigid = enemy.GetComponent<Rigidbody2D>();
+        Enemy enemyLogic = enemy.GetComponent<Enemy>();
+        enemyLogic.player = player;
+        // 랜덤 생성 위치에 따라 적의 초기 방향과 속도 설정
+        if (ranPoint == 5 || ranPoint == 6)
+        {
+            enemy.transform.Rotate(Vector3.back * 90);
+            rigid.velocity = Vector2.left * enemyLogic.speed;
+        }
+        else if (ranPoint == 7 || ranPoint == 8)
+        {
+            enemy.transform.Rotate(Vector3.forward * 90);
+            rigid.velocity = Vector2.right * enemyLogic.speed;
+        }
+        else
+        {
+            rigid.velocity = Vector2.down * enemyLogic.speed;
         }
     }
 }
