@@ -6,7 +6,8 @@ public class Enemy : MonoBehaviour
 {
     public string enemyName;
     public int hp; // 적의 체력
-    public int speed; // 적의 속도
+    public int enemyScore;
+    public float speed; // 적의 속도
 
     public float maxShotDelay;
     public float curShotDelay;
@@ -24,7 +25,6 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         // 초기화 코드는 여기에 작성 (현재는 비어 있음)
-        // SpriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Fire()
@@ -38,19 +38,19 @@ public class Enemy : MonoBehaviour
             Rigidbody2D rigid = bullet.GetComponent<Rigidbody2D>();
 
             Vector3 dirVec = player.transform.position - transform.position;
-            rigid.AddForce(dirVec * 10, ForceMode2D.Impulse);
+            rigid.AddForce(dirVec.normalized * 3, ForceMode2D.Impulse);
         }
         else if (enemyName == "Enemy02")
         {
             GameObject bulletA = Instantiate(EnemybulletA, transform.position + Vector3.right * 0.3f,transform.rotation);
             Rigidbody2D rigidA = bulletA.GetComponent <Rigidbody2D>();
             Vector3 dirVecA = player.transform.position - (transform.position + Vector3.right * 0.3f);
-            rigidA.AddForce(dirVecA * 10, ForceMode2D.Impulse);
+            rigidA.AddForce(dirVecA.normalized * 4, ForceMode2D.Impulse);
 
             GameObject bulletB = Instantiate(EnemybulletA, transform.position + Vector3.left * 0.3f , transform.rotation);
             Rigidbody2D rigidB = bulletB.GetComponent<Rigidbody2D>();
             Vector3 dirVecB = player.transform.position - (transform.position + Vector3.left * 0.3f);
-            rigidB.AddForce(dirVecB * 10, ForceMode2D.Impulse);
+            rigidB.AddForce(dirVecB.normalized * 4, ForceMode2D.Impulse);
         }
         curShotDelay = 0;
     }
@@ -67,12 +67,14 @@ public class Enemy : MonoBehaviour
 
         if (hp <= 0) // 체력이 0 이하면 적을 파괴
         {
+            PlayerController playerLogic = player.GetComponent<PlayerController>();
+            playerLogic.score += enemyScore;
             Destroy(gameObject);
         }
     }
 
     // 다른 Collider와 충돌했을 때 자동으로 호출
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "EnemyBullet") // 적의 총알에 맞았을 경우
             Destroy(gameObject); // 적을 바로 파괴
@@ -83,5 +85,4 @@ public class Enemy : MonoBehaviour
             // 적 파괴는 OnTakeHit 내에서 체력 검사 후 처리
         }
     }
-
 }

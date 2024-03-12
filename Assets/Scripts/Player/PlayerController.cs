@@ -8,12 +8,17 @@ public class PlayerController : MonoBehaviour
 {
     public float speed; // 플레이어 이동 속도
     public bool isTouchLeft, isTouchRight, isTouchBottom; // 플레이어가 각각의 경계에 닿았는지 여부
+    public bool isHit;
 
     public PooledObject bulletA; // 총알 오브젝트 풀 참조
     public PooledObject bulletB; // 대체 총알 프리팹
 
     public float maxShotDelay; // 총알 발사 사이의 최대 대기 시간
     public float curShotDelay; // 현재 총알 발사까지 남은 대기 시간
+    public int life;
+    public int score;
+
+    public GameManager manager;
 
     void Start()
     {
@@ -73,6 +78,16 @@ public class PlayerController : MonoBehaviour
                 case "Bottom": isTouchBottom = true;
                     break;
             }
+        }
+        else if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
+        {
+            if (isHit)
+                return;
+            isHit = true;
+
+
+            manager.RespawnPlayer();
+            gameObject.SetActive(false);
         }
     }
 
