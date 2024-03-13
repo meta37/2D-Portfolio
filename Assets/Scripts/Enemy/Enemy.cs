@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour
 
     public GameObject EnemybulletA;
     public GameObject EnemybulletB;
-    public GameObject player;
+    public PlayerController player;
 
     private void Update()
     {
@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour
 
     private void Awake()
     {
-        // 초기화 코드는 여기에 작성 (현재는 비어 있음)
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
     private void Fire()

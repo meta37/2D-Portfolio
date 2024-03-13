@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class EnemyBullet : MonoBehaviour
 {
-    public float Speed = 3f; // 총알의 속도
-    public int damage; // 총알의 데미지 값
-    public float lifetime = 2f; // 총알이 파괴되기 전까지 존재하는 시간 (초 단위)
+    [SerializeField] public float Speed = 3f; // 총알의 속도
+    [SerializeField] public int damage; // 총알의 데미지 값
+    [SerializeField] public float lifetime = 2f; // 총알이 파괴되기 전까지 존재하는 시간 (초 단위)
 
     private void Start()
     {

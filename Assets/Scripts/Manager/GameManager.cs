@@ -1,10 +1,17 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
-    public GameObject[] enemyObjects;
-    public Transform[] spawnPoints;
-    public GameObject player;
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private GameObject[] enemyObjects;
+    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject gameOverSet;
+    [SerializeField] private Text scoreText;
+    [SerializeField] private Image[] lifeImage;
 
     public float maxSpawnDelay;
     public float curSpawnDelay;
@@ -19,32 +26,46 @@ public class GameManager : Singleton<GameManager>
             maxSpawnDelay = Random.Range(0.5f, 3f);
             curSpawnDelay = 0;
         }
+
+        UpdateScore();
+    }
+
+    private void UpdateScore()
+    {
+        PlayerController playerLogic = player.GetComponent<PlayerController>();
+        scoreText.text = string.Format("{0:n0}", playerLogic.score);
     }
 
     private void SpawnEnemy()
     {
+        if (enemyObjects.Length == 0 || spawnPoints.Length == 0)
+        {
+            return;
+        }
+
         int ranEnemy = Random.Range(0, enemyObjects.Length);
         int ranPoint = Random.Range(0, spawnPoints.Length);
         GameObject enemy = Instantiate(enemyObjects[ranEnemy], spawnPoints[ranPoint].position, spawnPoints[ranPoint].rotation);
 
         Rigidbody2D rigid = enemy.GetComponent<Rigidbody2D>();
         Enemy enemyLogic = enemy.GetComponent<Enemy>();
-        enemyLogic.player = player;
+        if (enemyLogic != null)
+        {
 
-        // 랜덤 생성 위치에 따라 적의 초기 방향과 속도 설정
-        if (ranPoint == 5 || ranPoint == 6)
-        {
-            enemy.transform.Rotate(Vector3.back * 90);
-            rigid.velocity = new Vector2(enemyLogic.speed * (-1), -1);
         }
-        else if (ranPoint == 7 || ranPoint == 8)
+
+    }
+
+    public void UpdateLifeIcon(int life)
+    {
+        for (int index = 0; index < 3; index++)
         {
-            enemy.transform.Rotate(Vector3.forward * 90);
-            rigid.velocity = new Vector2(enemyLogic.speed, -1);
+            lifeImage[index].color = new Color(1, 1, 1, 0);
         }
-        else
+
+        for (int index = 0; index < life; index++)
         {
-            rigid.velocity = new Vector2(0, enemyLogic.speed * (-1));
+            lifeImage[index].color = new Color(1, 1, 1, 0);
         }
     }
 
@@ -55,7 +76,25 @@ public class GameManager : Singleton<GameManager>
 
     private void RespawnPlayerExe()
     {
-        player.transform.position = Vector3.down * 0.5f;
-        player.SetActive(true);
+        if (player != null)
+        {
+            player.transform.position = Vector3.zero; // Reset player position or set to a spawn point
+            player.SetActive(true); // Reactivate the player object
+        }
+
+        else
+        {
+            Debug.LogError("Player object is not set in GameManager.");
+        }
+    }
+
+    public void GameOver()
+    {
+        gameOverSet.SetActive(true);
+    }
+
+    public void GameRetry()
+    {
+        
     }
 }

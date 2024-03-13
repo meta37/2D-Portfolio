@@ -429,7 +429,7 @@ Transform:
   m_GameObject: {fileID: 228395155}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 16.171106, z: 0}
+  m_LocalPosition: {x: 0, y: 16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1102,7 +1102,7 @@ GameObject:
   - component: {fileID: 571083557}
   - component: {fileID: 571083558}
   m_Layer: 0
-  m_Name: EnemyManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1135,18 +1135,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4fcfa33b2f5d5e47b5fc920f8e1da03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyObjects:
-  - {fileID: 643780324}
-  - {fileID: 1088963573}
-  - {fileID: 7509545414133708355}
-  - {fileID: 164971254}
   spawnPoints:
   - {fileID: 1215340681}
   - {fileID: 768408627}
   - {fileID: 2108805142}
   - {fileID: 546876011}
+  enemyObjects:
+  - {fileID: 643780324}
+  - {fileID: 1088963573}
+  - {fileID: 7509545414133708355}
+  - {fileID: 164971254}
   player: {fileID: 1059789520}
-  maxSpawnDelay: 2
+  gameOverSet: {fileID: 2055964126}
+  scoreText: {fileID: 0}
+  lifeImage:
+  - {fileID: 1922643832}
+  - {fileID: 1798028163}
+  - {fileID: 2081108280}
+  maxSpawnDelay: 3
   curSpawnDelay: 0
 --- !u!1 &643780324 stripped
 GameObject:
@@ -3099,6 +3105,14 @@ PrefabInstance:
     - target: {fileID: 4766333429430288609, guid: 3f50b2f55f8f5cf47a474174956f256c, type: 3}
       propertyPath: m_IsTrigger
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5408746175800052044, guid: 3f50b2f55f8f5cf47a474174956f256c, type: 3}
+      propertyPath: manager
+      value: 
+      objectReference: {fileID: 571083558}
+    - target: {fileID: 6075698367588080043, guid: 3f50b2f55f8f5cf47a474174956f256c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.711
       objectReference: {fileID: 0}
     - target: {fileID: 6760679747299246184, guid: 3f50b2f55f8f5cf47a474174956f256c, type: 3}
       propertyPath: m_Name
