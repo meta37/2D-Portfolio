@@ -1,17 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager>
 {
-    [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private GameObject[] enemyObjects;
-    [SerializeField] private GameObject player;
-    [SerializeField] private GameObject gameOverSet;
-    [SerializeField] private Text scoreText;
-    [SerializeField] private Image[] lifeImage;
+    [SerializeField] public Transform[] spawnPoints;
+    [SerializeField] public GameObject[] enemyObjects;
+    [SerializeField] public GameObject player;
+    [SerializeField] public GameObject gameOverSet;
+    [SerializeField] public Text scoreText;
+    [SerializeField] public Image[] lifeImage;
 
     public float maxSpawnDelay;
     public float curSpawnDelay;
@@ -49,11 +50,6 @@ public class GameManager : Singleton<GameManager>
 
         Rigidbody2D rigid = enemy.GetComponent<Rigidbody2D>();
         Enemy enemyLogic = enemy.GetComponent<Enemy>();
-        if (enemyLogic != null)
-        {
-
-        }
-
     }
 
     public void UpdateLifeIcon(int life)
@@ -95,6 +91,6 @@ public class GameManager : Singleton<GameManager>
 
     public void GameRetry()
     {
-        
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }

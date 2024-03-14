@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
     public int hp; // 적의 체력
     public int enemyScore;
     public float speed; // 적의 속도
+    public Sprite[] sprites;
 
     public float maxShotDelay;
     public float curShotDelay;
@@ -15,6 +16,8 @@ public class Enemy : MonoBehaviour
     public GameObject EnemybulletA;
     public GameObject EnemybulletB;
     public PlayerController player;
+
+    SpriteRenderer spriteRenderer;
 
     private void Update()
     {
@@ -25,8 +28,8 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        curShotDelay = maxShotDelay;
     }
-
     private void Fire()
     {
         if (curShotDelay < maxShotDelay)
@@ -61,9 +64,11 @@ public class Enemy : MonoBehaviour
     }
 
     // 적이 피해를 받았을 때 호출
-    private void OnTakeHit(int damage)
+    public void OnHit(int damage)
     {
         hp -= damage; // 받은 피해만큼 체력을 감소
+        spriteRenderer.sprite = sprites[1];
+        Invoke("ReturnSprite", 0.1f);
 
         if (hp <= 0) // 체력이 0 이하면 적을 파괴
         {
@@ -73,15 +78,19 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void ReturnSprite()
+    {
+        spriteRenderer.sprite = sprites[0];
+    }
     // 다른 Collider와 충돌했을 때 자동으로 호출
-    public void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "EnemyBullet") // 적의 총알에 맞았을 경우
             Destroy(gameObject); // 적을 바로 파괴
         else if (collision.gameObject.tag == "PlayerBullet") // 플레이어의 총알에 맞았을 경우
         {
             PlayerBullet bullet = collision.gameObject.GetComponent<PlayerBullet>(); // 충돌한 총알의 스크립트를 가져옴
-            OnTakeHit(bullet.damage); // 피해 처리 함수 호출
+            OnHit(bullet.damage); // 피해 처리 함수 호출
             // 적 파괴는 OnTakeHit 내에서 체력 검사 후 처리
         }
     }

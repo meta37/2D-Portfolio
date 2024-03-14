@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -12,10 +13,15 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float maxShotDelay;
     public float curShotDelay;
+    public int power;
+    public int maxpower;
     public int life;
     public int score;
 
     public GameManager manager;
+    public GameObject SpecialBomb;
+    public bool TakeHit;
+    Animator anim;
 
     void Start()
     {
@@ -71,6 +77,9 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
         {
+            if (TakeHit)
+                return;
+            TakeHit = true;
             life--;
             manager.UpdateLifeIcon(life);
 
@@ -84,21 +93,62 @@ public class PlayerController : MonoBehaviour
             }
             gameObject.SetActive(false);
             Destroy(collision.gameObject);
+        }
+        else if (collision.gameObject.tag == "Item")
+        {
+            Item item = collision.gameObject.GetComponent<Item>();
+            switch (item.type)
+            {
+                case "Power":
+                    if (power == maxpower)
+                        score += 500;
+                    else
+                        power++;
+                    break;
+                case "Bomb":
+                    // SpecialBomb.SetActive(true);
+                    Invoke("OffSpecialBomb", 3f);
+                    GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                    for(int index =0; index < enemies.Length; index++)
+                    {
+                        Enemy enemyLogic = enemies[index].GetComponent<Enemy>();
+                        enemyLogic.OnHit(100);
+                    }
+                    break;
 
-
+                    GameObject[] bullets = GameObject.FindGameObjectsWithTag("EnemyBullet");
+                    for (int index = 0; index < bullets.Length; index++)
+                    {
+                        Destroy(bullets[index]);
+                    }
+                    break;
+            }
+            Destroy(collision.gameObject);
         }
     }
-
-    void OnTriggerExit2D(Collider2D collision)
+    private void OffSpecialBomb()
+    {
+        SpecialBomb.SetActive(false);
+    }
+    private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Border")
         {
             switch (collision.gameObject.name)
             {
-                case "Left": isTouchLeft = false; break;
-                case "Right": isTouchRight = false; break;
-                case "Bottom": isTouchBottom = false; break;
+                case "Left": isTouchLeft = false;
+                    break;
+                case "Right": isTouchRight = false;
+                    break;
+                case "Bottom": isTouchBottom = false;
+                    break;
             }
+        }
+        else if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
+        {
+            manager.RespawnPlayer();
+            gameObject.SetActive(false);
+            Destroy(collision.gameObject);
         }
     }
 
