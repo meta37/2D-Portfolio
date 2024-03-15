@@ -7,6 +7,8 @@ public class Enemy : MonoBehaviour
     public string enemyName;
     public int hp; // 적의 체력
     public int enemyScore;
+    public int maxPower;
+    public int maxBomb;
     public float speed; // 적의 속도
     public Sprite[] sprites;
 
@@ -15,6 +17,9 @@ public class Enemy : MonoBehaviour
 
     public GameObject EnemybulletA;
     public GameObject EnemybulletB;
+    public GameObject itemPower;
+    public GameObject itemBomb;
+
     public PlayerController player;
 
     SpriteRenderer spriteRenderer;
@@ -55,6 +60,13 @@ public class Enemy : MonoBehaviour
             Vector3 dirVecB = player.transform.position - (transform.position + Vector3.left * 0.3f);
             rigidB.AddForce(dirVecB.normalized * 4, ForceMode2D.Impulse);
         }
+        else if(enemyName == "Enemy03")
+        {
+            GameObject bulletA = Instantiate(EnemybulletA, transform.position + Vector3.right * 0.3f, transform.rotation);
+            Rigidbody2D rigidA = bulletA.GetComponent<Rigidbody2D>();
+            Vector3 dirVecA = player.transform.position - (transform.position + Vector3.right * 0.3f);
+            rigidA.AddForce(dirVecA.normalized * 4, ForceMode2D.Impulse);
+        }
         curShotDelay = 0;
     }
 
@@ -74,6 +86,22 @@ public class Enemy : MonoBehaviour
         {
             PlayerController playerLogic = player.GetComponent<PlayerController>();
             playerLogic.score += enemyScore;
+
+            int ran = Random.Range(0, 10);
+            if(ran < 5)
+            {
+                Debug.Log("Not Item");
+            }
+            else if(ran < 8)
+            {
+                Instantiate(itemPower, transform.position, itemPower.transform.rotation);
+            }
+
+            else if(ran < 9)
+            {
+                Instantiate(itemBomb, transform.position, itemBomb.transform.rotation);
+            }
+
             Destroy(gameObject);
         }
     }
@@ -85,13 +113,12 @@ public class Enemy : MonoBehaviour
     // 다른 Collider와 충돌했을 때 자동으로 호출
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "EnemyBullet") // 적의 총알에 맞았을 경우
-            Destroy(gameObject); // 적을 바로 파괴
-        else if (collision.gameObject.tag == "PlayerBullet") // 플레이어의 총알에 맞았을 경우
+        // 적이 플레이어의 총알에 맞았을 경우만 처리
+        if (collision.gameObject.tag == "PlayerBullet")
         {
             PlayerBullet bullet = collision.gameObject.GetComponent<PlayerBullet>(); // 충돌한 총알의 스크립트를 가져옴
             OnHit(bullet.damage); // 피해 처리 함수 호출
-            // 적 파괴는 OnTakeHit 내에서 체력 검사 후 처리
+                                  // 적 파괴는 OnHit 내에서 체력 검사 후 처리
         }
     }
 }

@@ -13,6 +13,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] public GameObject gameOverSet;
     [SerializeField] public Text scoreText;
     [SerializeField] public Image[] lifeImage;
+    public Image[] bombImage;
 
     public float maxSpawnDelay;
     public float curSpawnDelay;
@@ -31,10 +32,21 @@ public class GameManager : Singleton<GameManager>
         UpdateScore();
     }
 
-    private void UpdateScore()
+    public void UpdateScore()
     {
-        PlayerController playerLogic = player.GetComponent<PlayerController>();
-        scoreText.text = string.Format("{0:n0}", playerLogic.score);
+        if (player != null)
+        {
+            PlayerController playerLogic = player.GetComponent<PlayerController>();
+            if (playerLogic != null)
+            {
+                scoreText.text = string.Format("{0:n0}", playerLogic.score);
+            }
+            else
+            {
+                Debug.LogError("PlayerController component not found on player object.");
+            }
+        }
+
     }
 
     private void SpawnEnemy()
@@ -62,6 +74,19 @@ public class GameManager : Singleton<GameManager>
         for (int index = 0; index < life; index++)
         {
             lifeImage[index].color = new Color(1, 1, 1, 0);
+        }
+    }
+
+    public void UpdateBombIcon(int bomb)
+    {
+        for (int index = 0; index < 3; index++)
+        {
+            bombImage[index].color = new Color(1, 1, 1, 0);
+        }
+
+        for (int index = 0; index < bomb; index++)
+        {
+            bombImage[index].color = new Color(1, 1, 1, 0);
         }
     }
 

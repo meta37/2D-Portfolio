@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float speed;
     public bool isTouchLeft, isTouchRight, isTouchBottom;
     public bool isHit;
+    public bool isBombTime;
 
     public PooledObject bulletA;
     public PooledObject bulletB;
@@ -17,12 +18,16 @@ public class PlayerController : MonoBehaviour
     public int maxpower;
     public int life;
     public int score;
+    public int bomb;
 
     public GameManager manager;
     public GameObject SpecialBomb;
-    public bool TakeHit;
     Animator anim;
 
+    private void Awake()
+    {
+        anim = GetComponent<Animator>();
+    }
     void Start()
     {
         Manager.Pool.CreatePool(bulletA, 100, 20);
@@ -33,9 +38,36 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         Fire();
+        Bomb();
         Reload();
     }
 
+    private void Bomb()
+    {
+        if (!Input.GetButton("Fire2"))
+            return;
+        if (isBombTime)
+            return;
+
+        if (bomb == 0)
+            return;
+
+        bomb--;
+        SpecialBomb.SetActive(true);
+        Invoke("OffSpecialBomb", 3f);
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int index = 0; index < enemies.Length; index++)
+        {
+            Enemy enemyLogic = enemies[index].GetComponent<Enemy>();
+            enemyLogic.OnHit(100);
+        }
+
+        GameObject[] bullets = GameObject.FindGameObjectsWithTag("EnemyBullet");
+        for (int index = 0; index < bullets.Length; index++)
+        {
+            Destroy(bullets[index]);
+        }
+    }
     void Move()
     {
         float h = Input.GetAxisRaw("Horizontal");
@@ -77,9 +109,9 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
         {
-            if (TakeHit)
+            if (isHit)
                 return;
-            TakeHit = true;
+            isHit = true;
             life--;
             manager.UpdateLifeIcon(life);
 
@@ -106,7 +138,7 @@ public class PlayerController : MonoBehaviour
                         power++;
                     break;
                 case "Bomb":
-                    // SpecialBomb.SetActive(true);
+                    SpecialBomb.SetActive(true);
                     Invoke("OffSpecialBomb", 3f);
                     GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
                     for(int index =0; index < enemies.Length; index++)
@@ -114,8 +146,7 @@ public class PlayerController : MonoBehaviour
                         Enemy enemyLogic = enemies[index].GetComponent<Enemy>();
                         enemyLogic.OnHit(100);
                     }
-                    break;
-
+                    
                     GameObject[] bullets = GameObject.FindGameObjectsWithTag("EnemyBullet");
                     for (int index = 0; index < bullets.Length; index++)
                     {
