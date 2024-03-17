@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,10 +20,13 @@ public class PlayerController : MonoBehaviour
     public int life;
     public int score;
     public int bomb;
+    public int MAX_POWER = 3;
+
 
     public GameManager manager;
     public GameObject SpecialBomb;
-    Animator anim;
+    [SerializeField]Animator anim;
+    SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
@@ -99,11 +103,14 @@ public class PlayerController : MonoBehaviour
         {
             switch (collision.gameObject.name)
             {
-                case "Left": isTouchLeft = true;
+                case "Left":
+                    isTouchLeft = true;
                     break;
-                case "Right": isTouchRight = true;
+                case "Right":
+                    isTouchRight = true;
                     break;
-                case "Bottom": isTouchBottom = true;
+                case "Bottom":
+                    isTouchBottom = true;
                     break;
             }
         }
@@ -115,7 +122,7 @@ public class PlayerController : MonoBehaviour
             life--;
             manager.UpdateLifeIcon(life);
 
-            if(life == 0)
+            if (life == 0)
             {
                 manager.GameOver();
             }
@@ -127,34 +134,25 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
         }
         else if (collision.gameObject.tag == "Item")
-        {
-            Item item = collision.gameObject.GetComponent<Item>();
-            switch (item.type)
+        { 
+ 
+            var item = collision.gameObject.GetComponent<Item>();
+            switch (item.itemType)
             {
-                case "Power":
-                    if (power == maxpower)
-                        score += 500;
-                    else
+                case Item.ItemType.Power:
+                    if (power != MAX_POWER)
+                    {
                         power++;
+                        AddFollower();
+                    }
+                    else
+                        GameManager.Inst.score += 500;
                     break;
-                case "Bomb":
-                    SpecialBomb.SetActive(true);
-                    Invoke("OffSpecialBomb", 3f);
-                    GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-                    for(int index =0; index < enemies.Length; index++)
-                    {
-                        Enemy enemyLogic = enemies[index].GetComponent<Enemy>();
-                        enemyLogic.OnHit(100);
-                    }
-                    
-                    GameObject[] bullets = GameObject.FindGameObjectsWithTag("EnemyBullet");
-                    for (int index = 0; index < bullets.Length; index++)
-                    {
-                        Destroy(bullets[index]);
-                    }
+                case Item.ItemType.Bomb:
+                    GameManager.Inst.AddBomb(1);
                     break;
             }
-            Destroy(collision.gameObject);
+            item.gameObject.SetActive(false);
         }
     }
     private void OffSpecialBomb()
@@ -163,19 +161,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Border")
-        {
-            switch (collision.gameObject.name)
-            {
-                case "Left": isTouchLeft = false;
-                    break;
-                case "Right": isTouchRight = false;
-                    break;
-                case "Bottom": isTouchBottom = false;
-                    break;
-            }
-        }
-        else if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
+        if (collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "EnemyBullet")
         {
             manager.RespawnPlayer();
             gameObject.SetActive(false);
@@ -188,5 +174,43 @@ public class PlayerController : MonoBehaviour
         isHit = false; // Reset isHit on respawn
         this.gameObject.SetActive(true);
         transform.position = Vector3.zero; // or any other starting position
+    }
+
+    List<Follower> followers = new List<Follower>();
+    void AddFollower()
+    {
+        if (power >= 4)
+        {
+            var follower = ObjectManager.Inst.MakeObj(PoolType.follower).GetComponent<Follower>();
+            follower.transform.position = this.gameObject.transform.position;
+            followers.Add(follower);
+
+            if (followers.Count == 1)
+            {
+                follower.parent = this.gameObject.transform;
+            }
+            else
+            {
+                follower.parent = followers[followers.Count - 2].transform;
+            }
+        }
+    }
+
+    public void FollowerActivate(bool state)
+    {
+        foreach (var follower in followers)
+        {
+            //follower.gameObject.SetActive(state);
+
+            if (state)
+            {
+                follower.transform.position = this.gameObject.transform.position;
+                follower.GetComponent<SpriteRenderer>().color = Color.white;
+            }
+            else
+            {
+                follower.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.25f);
+            }
+        }
     }
 }

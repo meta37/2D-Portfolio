@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    public string type;
+    public enum ItemType { Bomb, Power };
+    public ItemType itemType;
+
     Rigidbody2D rigid;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        rigid.velocity = Vector2.down * 0.1f;
+    }
+
+    private void OnEnable()
+    {
+        rigid.velocity = Vector2.down * 1.5f;
     }
 }

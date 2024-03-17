@@ -92,16 +92,10 @@ public class Enemy : MonoBehaviour
             {
                 Debug.Log("Not Item");
             }
-            else if(ran < 8)
+            else if(ran < 7)
             {
-                Instantiate(itemPower, transform.position, itemPower.transform.rotation);
+                Debug.Log("Not Item");
             }
-
-            else if(ran < 9)
-            {
-                Instantiate(itemBomb, transform.position, itemBomb.transform.rotation);
-            }
-
             Destroy(gameObject);
         }
     }
